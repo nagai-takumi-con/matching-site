@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { FaUserCircle, FaArrowLeft, FaRegCheckCircle } from "react-icons/fa";
+import Image from "next/image";
 
 interface ChatPartner {
   id: string;
@@ -98,10 +99,12 @@ export function ChatRoom({ currentUserId, partner, onBack, onProfileLink }: Chat
           <FaArrowLeft className="text-pink-500 text-xl" />
         </button>
         {partner.profile.photos ? (
-          <img
+          <Image
             src={JSON.parse(partner.profile.photos)[0]}
             alt={partner.profile.name}
-            className="w-10 h-10 rounded-full object-cover border-2 border-pink-300"
+            width={40}
+            height={40}
+            className="rounded-full object-cover border-2 border-pink-300"
           />
         ) : (
           <FaUserCircle className="w-10 h-10 text-gray-300" />
