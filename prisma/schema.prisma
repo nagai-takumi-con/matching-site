@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile   Profile?
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  sentMatches      Match[]   @relation("SentMatches")
+  receivedMatches  Match[]   @relation("ReceivedMatches")
+}
+
+model Profile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  name        String
+  age         Int
+  gender      String
+  location    String
+  occupation  String?
+  education   String?
+  height      Int?
+  weight      Int?
+  smoking     Boolean  @default(false)
+  drinking    Boolean  @default(false)
+  hobbies     String?
+  about       String?
+  photos      String?  // JSON string of photo URLs
+  
+  lookingFor  String   // "male", "female", "both"
+  minAge      Int?
+  maxAge      Int?
+  
+  isActive    Boolean  @default(true)
+  lastActive  DateTime @default(now())
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  senderId  String
+  sender    User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver  User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  
+  content   String
+  isRead    Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
+}
+
+model Match {
+  id          String   @id @default(cuid())
+  senderId    String
+  sender      User     @relation("SentMatches", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId  String
+  receiver    User     @relation("ReceivedMatches", fields: [receiverId], references: [id], onDelete: Cascade)
+  
+  status      String   @default("pending") // "pending", "accepted", "rejected"
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([senderId, receiverId])
+}
